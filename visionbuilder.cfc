@@ -12,7 +12,7 @@ component{
 		}
 		var javaloader = createObject("component", "path.to.javaloader").init(loadPaths);
 		var jsonFileLocation = expandPath("path\to\cred\file.json");
-		variables.vision = createObject("component", "vision").init(javaloader,jsonFileLocation,"CMOCR");
+		variables.vision = createObject("component", "vision").init(javaloader,jsonFileLocation,"your-app-name");
 		return this;
 	}
 	
