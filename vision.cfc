@@ -17,7 +17,22 @@ component{
 	Java settings used in application.cfc
 	this.javaSettings = {loadPaths="path\to\jars\",loadColdfFusionClassPath=true,reloadOnChange=false};
 		
-		
+	The maximum payload size for a request is 8 MB.
+	The maximum payload size for a single image was 4 MB
+	Any image over 4 MB needs to be shrunk for sure
+	My testing showed images overs 3.5MB needed to be shrunk,
+	probably because the limit is on the base64 data
+	Not the binary data
+	
+	I did not include the code to do that interally in the library, because it is best handled elsewhere
+	More so, because cfimage resize has garbage performance, even on highestPerformance.
+	
+	I personally used graphicsMagick, and cfexecute, imageMagick would work well too.
+	
+	The way I determined shrinking an image, was I checked if it was over 3MB (to be safe).
+	If it was, I shrunk it by the percentage needed. So if it was 4MB, I did 3MB / 4 MB.
+	Then I resized the image to 75% of the size.
+	I had worse results when I tried to check for images over a certain resolution.
 		
 	*/
 	
@@ -41,6 +56,8 @@ component{
 		var requestObj = createAnnotateImageRequest().setImage(imageObj).setFeatures(variables.immutableList.of(featureObj));
 		var annoteBatch = createBatchAnnotateImagesRequest().setRequests(immutableList.of(requestObj));
 		var annoteObj = variables.visionAPI.images().annotate(annoteBatch);
+		//Have to disable GZIP, large images (unsure exact size, seemed to be over 3MBish), will silently fail and not do an outgoing request
+		//You will just get an empty struct back without this.
 		annoteObj.setDisableGZipContent(true);
 		var response = annoteObj.execute();
 		return response;
